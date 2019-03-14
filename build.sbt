@@ -15,8 +15,8 @@ def common: Seq[Setting[_]] = Seq(
                           "https://gitter.im/akka/dev",
                           url("https://github.com/akka/akka-persistence-couchbase/graphs/contributors")),
   licenses := Seq(("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
-  crossScalaVersions := Seq("2.12.7", "2.11.12"),
-  scalaVersion := crossScalaVersions.value.last,
+  crossScalaVersions := Seq(Dependencies.Scala213, Dependencies.Scala212, Dependencies.Scala211),
+  scalaVersion := Dependencies.Scala212,
   crossVersion := CrossVersion.binary,
   scalafmtOnCompile := true,
   scalacOptions ++= Seq(
@@ -26,7 +26,6 @@ def common: Seq[Setting[_]] = Seq(
     "-unchecked",
     "-deprecation",
     "-Xlint",
-    "-Yno-adapted-args",
     "-Ywarn-dead-code",
     "-Ywarn-numeric-widen",
     "-Xfuture",
@@ -80,7 +79,9 @@ lazy val root = (project in file("."))
   .settings(dontPublish)
   .settings(
     name := "akka-persistence-couchbase-root",
-    publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo")))
+    publishTo := Some(Resolver.file("Unused transient repository", file("target/unusedrepo"))),
+    // workaround for https://github.com/sbt/sbt/issues/3465
+    crossScalaVersions := List(),
   )
   .aggregate((Seq(core, docs) ++ lagomModules).map(Project.projectToRef): _*)
 
@@ -120,7 +121,8 @@ lazy val `copy-of-lagom-persistence-test` =
     .settings(
       // This modules copy-pasted preserve it as is
       scalafmtOnCompile := false,
-      libraryDependencies := Dependencies.`copy-of-lagom-persistence-test`
+      libraryDependencies := Dependencies.`copy-of-lagom-persistence-test`,
+      crossScalaVersions -= Dependencies.Scala213,
     )
 
 lazy val `lagom-persistence-couchbase-core` = (project in file("lagom-persistence-couchbase/core"))
@@ -130,7 +132,8 @@ lazy val `lagom-persistence-couchbase-core` = (project in file("lagom-persistenc
   .enablePlugins(AutomateHeaderPlugin)
   .settings(
     name := "lagom-persistence-couchbase-core",
-    libraryDependencies := Dependencies.`lagom-persistence-couchbase-core`
+    libraryDependencies := Dependencies.`lagom-persistence-couchbase-core`,
+    crossScalaVersions -= Dependencies.Scala213,
   )
 
 lazy val `lagom-persistence-couchbase-javadsl` = (project in file("lagom-persistence-couchbase/javadsl"))
@@ -144,7 +147,8 @@ lazy val `lagom-persistence-couchbase-javadsl` = (project in file("lagom-persist
   .enablePlugins(AutomateHeaderPlugin)
   .settings(
     name := "lagom-javadsl-persistence-couchbase",
-    libraryDependencies := Dependencies.`lagom-persistence-couchbase-javadsl`
+    libraryDependencies := Dependencies.`lagom-persistence-couchbase-javadsl`,
+    crossScalaVersions -= Dependencies.Scala213,
   )
   .enablePlugins(MultiJvmPlugin)
   .configs(MultiJvm)
@@ -161,7 +165,8 @@ lazy val `lagom-persistence-couchbase-scaladsl` = (project in file("lagom-persis
   .enablePlugins(AutomateHeaderPlugin)
   .settings(
     name := "lagom-scaladsl-persistence-couchbase",
-    libraryDependencies := Dependencies.`lagom-persistence-couchbase-scaladsl`
+    libraryDependencies := Dependencies.`lagom-persistence-couchbase-scaladsl`,
+    crossScalaVersions -= Dependencies.Scala213,
   )
   .enablePlugins(MultiJvmPlugin)
   .configs(MultiJvm)

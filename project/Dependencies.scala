@@ -5,6 +5,9 @@
 import sbt._
 
 object Dependencies {
+  val Scala211 = "2.11.12"
+  val Scala212 = "2.12.8"
+  val Scala213 = "2.13.0-M5"
 
   val AkkaVersion = "2.5.21"
   val AlpakkaCouchbaseVersion = "1.0-M3"
