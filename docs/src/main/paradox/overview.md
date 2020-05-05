@@ -8,13 +8,16 @@ The Akka Persistence Couchbase plugin allows for using [Couchbase](https://www.c
 
 ## Dependencies
 
-@@dependency [Maven,sbt,Gradle] {
+@@dependency [sbt,Maven,Gradle] {
   group=com.lightbend.akka
   artifact=akka-persistence-couchbase_$scala.binary.version$
   version=$project.version$
+  group2=com.lightbend.akka artifact2=akka-stream-alpakka-couchbase_$scala.binary.version$ version2=$alpakkaCouchbase.version$
+  symbol1=AkkaVersion value1=$akka.version$
+  group3=com.typesafe.akka artifact3=akka-persistence-query_$scala.binary.version$ version3=AkkaVersion
 }
 
-This plugin depends on Akka 2.5.x and note that it is important that all `akka-*` 
+This plugin can be used with Akka 2.5.x and Akka 2.6.x. Note that it is important that all `akka-*` 
 dependencies are in the same version, so it is recommended to depend on them explicitly to avoid problems 
 with transient dependencies causing an unlucky mix of versions.
 

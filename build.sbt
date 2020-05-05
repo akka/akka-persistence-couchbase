@@ -209,16 +209,24 @@ lazy val docs = project
     Paradox / siteSubdirName := s"docs/akka-persistence-couchbase/${projectInfoVersion.value}",
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxProperties ++= Map(
-        "akka.version" -> Dependencies.AkkaVersion,
+        "project.url" -> "https://doc.akka.io/docs/akka-persistence-couchbase/current/",
+        "canonical.base_url" -> "https://doc.akka.io/docs/akka-persistence-couchbase/current/",
         "alpakkaCouchbase.version" -> Dependencies.AlpakkaCouchbaseVersion,
+        // Akka
+        "akka.version" -> Dependencies.AkkaVersion,
         "extref.akka-docs.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.AkkaBinaryVersion}/%s",
-        "extref.java-docs.base_url" -> "https://docs.oracle.com/en/java/javase/11/%s",
-        "scaladoc.scala.base_url" -> s"https://www.scala-lang.org/api/current/",
         "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/akka/${Dependencies.AkkaBinaryVersion}",
+        "javadoc.akka.base_url" -> s"https://doc.akka.io/japi/akka/${Dependencies.AkkaBinaryVersion}/",
+        "javadoc.akka.link_style" -> "direct",
+        // Java
+        "extref.java-docs.base_url" -> "https://docs.oracle.com/en/java/javase/11/%s",
+        // Scala
+        "scaladoc.scala.base_url" -> s"https://www.scala-lang.org/api/current/",
+        // Config
         "scaladoc.com.typesafe.config.base_url" -> s"https://lightbend.github.io/config/latest/api/"
       ),
     resolvers += Resolver.jcenterRepo,
-    publishRsyncArtifact := makeSite.value -> "www/",
+    publishRsyncArtifacts += makeSite.value -> "www/",
     publishRsyncHost := "akkarepo@gustav.akka.io"
   )
   .dependsOn(`lagom-persistence-couchbase-scaladsl`, `lagom-persistence-couchbase-javadsl`)

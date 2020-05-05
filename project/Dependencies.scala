@@ -19,9 +19,6 @@ object Dependencies {
   object Compile {
     val scalaCollectionCompat = "org.scala-lang.modules" %% "scala-collection-compat" % ScalaCollectionCompat
 
-    // used to easily convert rxjava into reactive streams and then into akka streams
-    val rxJavaReactiveStreams = "io.reactivex" % "rxjava-reactive-streams" % "1.2.1" // Apache V2
-
     val akkaActor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
     val akkaCluster = "com.typesafe.akka" %% "akka-cluster" % AkkaVersion
     val akkaStream = "com.typesafe.akka" %% "akka-stream" % AkkaVersion
