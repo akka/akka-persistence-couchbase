@@ -211,10 +211,10 @@ lazy val docs = project
     paradoxProperties ++= Map(
         "akka.version" -> Dependencies.AkkaVersion,
         "alpakkaCouchbase.version" -> Dependencies.AlpakkaCouchbaseVersion,
-        "extref.akka-docs.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.AkkaVersion}/%s",
+        "extref.akka-docs.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.AkkaBinaryVersion}/%s",
         "extref.java-docs.base_url" -> "https://docs.oracle.com/en/java/javase/11/%s",
         "scaladoc.scala.base_url" -> s"https://www.scala-lang.org/api/current/",
-        "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/akka/${Dependencies.AkkaVersion}",
+        "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/akka/${Dependencies.AkkaBinaryVersion}",
         "scaladoc.com.typesafe.config.base_url" -> s"https://lightbend.github.io/config/latest/api/"
       ),
     resolvers += Resolver.jcenterRepo,

@@ -10,7 +10,8 @@ object Dependencies {
   val Scala213 = "2.13.1"
 
   val AkkaVersion = "2.5.25"
-  val AlpakkaCouchbaseVersion = "1.1.2"
+  val AkkaBinaryVersion = "2.5"
+  val AlpakkaCouchbaseVersion = "2.0.0"
   val LagomVersion = "1.5.4"
 
   val ScalaCollectionCompat = "2.1.4"
