@@ -13,6 +13,6 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-multi-jvm" % "0.4.0")
 
 // docs
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox-dependencies" % "0.2.1")
-addSbtPlugin("com.lightbend.akka" % "sbt-paradox-akka" % "0.33")
+addSbtPlugin("com.lightbend.akka" % "sbt-paradox-akka" % "0.35")
 addSbtPlugin("com.lightbend.sbt" % "sbt-publish-rsync" % "0.2")
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.0")
