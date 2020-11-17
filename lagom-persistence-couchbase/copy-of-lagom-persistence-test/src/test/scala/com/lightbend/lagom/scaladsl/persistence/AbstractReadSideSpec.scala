@@ -4,22 +4,22 @@
 
 package com.lightbend.lagom.scaladsl.persistence
 
-import akka.actor.{ Actor, ActorRef, Props, Status }
+import akka.actor.{Actor, ActorRef, Props, Status}
 import akka.pattern.pipe
 import akka.persistence.query.Offset
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
 import akka.testkit.ImplicitSender
-import akka.{ Done, NotUsed }
+import akka.{Done, NotUsed}
 import com.lightbend.lagom.internal.persistence.ReadSideConfig
 import com.lightbend.lagom.internal.persistence.cluster.ClusterDistribution.EnsureActive
 import com.lightbend.lagom.internal.persistence.cluster.ClusterStartupTask
 import com.lightbend.lagom.internal.persistence.cluster.ClusterStartupTaskActor.Execute
-import com.lightbend.lagom.internal.scaladsl.persistence.{ PersistentEntityActor, ReadSideActor }
+import com.lightbend.lagom.internal.scaladsl.persistence.{PersistentEntityActor, ReadSideActor}
 import com.lightbend.lagom.persistence.ActorSystemSpec
 import com.lightbend.lagom.scaladsl.persistence.TestEntity.Mode
 import org.scalatest.BeforeAndAfter
-import org.scalatest.concurrent.{ Eventually, ScalaFutures }
+import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import akka.pattern._
 import akka.util.Timeout
 
@@ -39,8 +39,9 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
   protected val persistentEntityRegistry: PersistentEntityRegistry
 
   def eventStream[Event <: AggregateEvent[Event]](
-    aggregateTag: AggregateEventTag[Event],
-    fromOffset: Offset): Source[EventStreamElement[Event], NotUsed] =
+      aggregateTag: AggregateEventTag[Event],
+      fromOffset: Offset
+  ): Source[EventStreamElement[Event], NotUsed] =
     persistentEntityRegistry.eventStream(aggregateTag, fromOffset)
 
   def processorFactory(): ReadSideProcessor[TestEntity.Evt]
@@ -51,20 +52,12 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
 
   private var readSideActor: Option[ActorRef] = None
 
-  private def createTestEntityRef() = {
+  private def createTestEntityRef() =
     system.actorOf(
-      PersistentEntityActor.props(
-        "test",
-        Some("1"),
-        () => new TestEntity(system),
-        None,
-        10.seconds,
-        "",
-        ""))
-  }
+      PersistentEntityActor.props("test", Some("1"), () => new TestEntity(system), None, 10.seconds, "", "")
+    )
 
   class Mock(inFailureMode: Boolean = false) extends Actor {
-
     private var stats = Mock.MockStats(0, 0)
 
     def receive = if (inFailureMode) failureMode else successMode
@@ -74,7 +67,9 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
         processorFactory()
           .buildHandler()
           .globalPrepare()
-          .map { _ => Done } pipeTo sender()
+          .map { _ =>
+            Done
+          } pipeTo sender()
         stats = stats.recordSuccess()
 
       case Mock.BecomeSuccessful => context.become(failureMode)
@@ -91,7 +86,6 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
     def getStats: Receive = {
       case Mock.GetStats => sender() ! stats
     }
-
   }
 
   object Mock {
@@ -110,7 +104,8 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
       classOf[TestEntity.Evt],
       new ClusterStartupTask(mockRef),
       eventStream,
-      () => processorFactory())
+      () => processorFactory()
+    )
 
     val readSide: ActorRef = system.actorOf(processorProps)
 
@@ -128,12 +123,11 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
     }
   }
 
-  private def assertAppendCount(id: String, expected: Long): Unit = {
+  private def assertAppendCount(id: String, expected: Long): Unit =
     eventually {
       val count = getAppendCount(id).futureValue
       count shouldBe expected
     }
-  }
 
   private def fetchLastOffset(): Offset =
     processorFactory()
@@ -143,9 +137,7 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
       .futureValue
 
   "ReadSide" must {
-
     "process events and save query projection" in {
-
       val p = createTestEntityRef()
       p ! TestEntity.Add("a")
       expectMsg(TestEntity.Appended("A"))
@@ -162,7 +154,6 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
       expectMsg(TestEntity.Appended("D"))
 
       assertAppendCount("1", 4L)
-
     }
 
     "resume from stored offset" in {
@@ -179,7 +170,6 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
     }
 
     "recover after failure in globalPrepare" in {
-
       val mockRef = createReadSideProcessor(inFailureMode = true)
 
       val p = createTestEntityRef()
@@ -210,7 +200,6 @@ trait AbstractReadSideSpec extends ImplicitSender with ScalaFutures with Eventua
     }
 
     "persisted offsets for unhandled events" in {
-
       createReadSideProcessor()
 
       // count = 5 from previous test steps

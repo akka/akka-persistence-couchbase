@@ -4,21 +4,19 @@
 
 package com.lightbend.lagom.javadsl.persistence.testkit
 
-import akka.actor.{ ActorRef, Props, actorRef2Scala }
+import akka.actor.{actorRef2Scala, ActorRef, Props}
 import akka.persistence.PersistentActor
 import com.lightbend.lagom.persistence.ActorSystemSpec
 
 import scala.concurrent.duration._
 
 object AbstractEmbeddedPersistentActorSpec {
-
   final case class Cmd(data: String)
   final case class Evt(data: String)
   case object Get
   final case class State(data: Vector[String] = Vector.empty) {
-    def apply(evt: Evt): State = {
+    def apply(evt: Evt): State =
       copy(data :+ evt.data)
-    }
   }
 
   def props(persistenceId: String): Props =
@@ -39,7 +37,6 @@ object AbstractEmbeddedPersistentActorSpec {
       case Get => sender() ! state
     }
   }
-
 }
 
 trait AbstractEmbeddedPersistentActorSpec { spec: ActorSystemSpec =>
@@ -63,7 +60,5 @@ trait AbstractEmbeddedPersistentActorSpec { spec: ActorSystemSpec =>
       p2 ! Get
       expectMsg(State(Vector("A", "B", "C")))
     }
-
   }
-
 }

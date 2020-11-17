@@ -10,12 +10,11 @@ import akka.actor.Address
 import akka.cluster.Cluster
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import com.lightbend.lagom.scaladsl.persistence.testkit.SimulatedNullpointerException
-import com.lightbend.lagom.scaladsl.playjson.{ JsonSerializerRegistry, JsonSerializer }
+import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 
 import scala.collection.immutable
 
 object TestEntity {
-
   object SharedFormats {
     import play.api.libs.json._
 
@@ -24,10 +23,12 @@ object TestEntity {
         case JsString("append") => JsSuccess(Mode.Append)
         case JsString("prepend") => JsSuccess(Mode.Prepend)
         case js => JsError(s"unknown mode js: $js")
-      }, Writes[Mode] {
+      },
+      Writes[Mode] {
         case Mode.Append => JsString("append")
         case Mode.Prepend => JsString("prepend")
-      })
+      }
+    )
   }
 
   object Cmd {
@@ -42,8 +43,8 @@ object TestEntity {
       JsonSerializer(emptySingletonFormat(UndefinedCmd)),
       JsonSerializer(emptySingletonFormat(UnhandledEvtCmd)),
       JsonSerializer(emptySingletonFormat(GetAddress)),
-      JsonSerializer(emptySingletonFormat(Clear)))
-
+      JsonSerializer(emptySingletonFormat(Clear))
+    )
   }
 
   sealed trait Cmd
@@ -83,7 +84,8 @@ object TestEntity {
       JsonSerializer(emptySingletonFormat(InPrependMode)),
       JsonSerializer(emptySingletonFormat(InAppendMode)),
       JsonSerializer(emptySingletonFormat(Unhandled)),
-      JsonSerializer(emptySingletonFormat(Cleared)))
+      JsonSerializer(emptySingletonFormat(Cleared))
+    )
   }
 
   sealed trait Evt extends AggregateEvent[Evt] {
@@ -107,8 +109,7 @@ object TestEntity {
 
     import play.api.libs.json._
     import SharedFormats._
-    val serializers = Vector(
-      JsonSerializer(Json.format[State]))
+    val serializers = Vector(JsonSerializer(Json.format[State]))
   }
 
   final case class State(mode: Mode, elements: List[String]) {
@@ -126,11 +127,9 @@ object TestEntitySerializerRegistry extends JsonSerializerRegistry {
   import TestEntity._
 
   override def serializers: immutable.Seq[JsonSerializer[_]] = Cmd.serializers ++ Evt.serializers ++ State.serializers
-
 }
 
-class TestEntity(system: ActorSystem)
-  extends PersistentEntity {
+class TestEntity(system: ActorSystem) extends PersistentEntity {
   import TestEntity._
 
   override type Command = Cmd
@@ -229,5 +228,4 @@ class TestEntity(system: ActorSystem)
     probe.foreach(_ ! AfterRecovery(state))
     state
   }
-
 }

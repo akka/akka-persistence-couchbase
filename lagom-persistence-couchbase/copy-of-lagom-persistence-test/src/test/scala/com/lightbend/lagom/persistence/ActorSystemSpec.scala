@@ -6,11 +6,11 @@ package com.lightbend.lagom.persistence
 
 import akka.actor.ActorSystem
 import akka.actor.setup.ActorSystemSetup
-import akka.event.{ Logging, LoggingAdapter }
-import akka.testkit.{ ImplicitSender, TestKit }
-import com.typesafe.config.{ Config, ConfigFactory }
-import org.scalactic.{ CanEqual, TypeCheckedTripleEquals }
-import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
+import akka.event.{Logging, LoggingAdapter}
+import akka.testkit.{ImplicitSender, TestKit}
+import com.typesafe.config.{Config, ConfigFactory}
+import org.scalactic.{CanEqual, TypeCheckedTripleEquals}
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 object ActorSystemSpec {
   def getCallerName(clazz: Class[_]): String = {
@@ -22,13 +22,15 @@ object ActorSystemSpec {
     }
     reduced.head.replaceFirst(""".*\.""", "").replaceAll("[^a-zA-Z_0-9]", "_")
   }
-
 }
 
-abstract class ActorSystemSpec(system: ActorSystem) extends TestKit(system)
-  with WordSpecLike with Matchers with BeforeAndAfterAll with TypeCheckedTripleEquals
-  with ImplicitSender {
-
+abstract class ActorSystemSpec(system: ActorSystem)
+    extends TestKit(system)
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll
+    with TypeCheckedTripleEquals
+    with ImplicitSender {
   def this(testName: String, config: Config) =
     this(ActorSystem(testName, config))
 
@@ -50,5 +52,4 @@ abstract class ActorSystemSpec(system: ActorSystem) extends TestKit(system)
     new CanEqual[Class[A], Class[B]] {
       def areEqual(a: Class[A], b: Class[B]) = a == b
     }
-
 }

@@ -1,3 +1,5 @@
+version: ~> 1.0
+
 language: scala
 sudo: false
 
@@ -23,13 +25,10 @@ jobs:
       script: sbt whitesourceCheckPolicies whitesourceUpdate
 
     - stage: check
-      script: sbt headerCheck || { echo "[error] Missing license headers found. Please run 'headerCreate' and commit the updated code."; false; }
-      name: "Copyright header check"
-    - script: sbt scalafmtCheck || { echo "[error] Unformatted code found. Please run 'Test/compile' and commit the reformatted code."; false; }
+      script: sbt verifyCodeStyle
       name: "Code style check"
-    - script: sbt scalafmtSbtCheck || { echo "[error] Unformatted sbt code found. Please run 'scalafmtSbt' and commit the reformatted code."; false; }
-      name: "Build code style check"
     - env: CMD="+Test/compile"
+      name: "Compile (all Scala versions)"
 
     - stage: test
       name: "Run tests (AdoptOpenJDK 8)"

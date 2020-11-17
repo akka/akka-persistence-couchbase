@@ -5,22 +5,21 @@
 package com.lightbend.lagom.scaladsl.persistence.multinode
 
 import akka.actor.setup.ActorSystemSetup
-import akka.actor.{ ActorRef, ActorSystem, Address, BootstrapSetup }
-import akka.cluster.{ Cluster, MemberStatus }
+import akka.actor.{ActorRef, ActorSystem, Address, BootstrapSetup}
+import akka.cluster.{Cluster, MemberStatus}
 import akka.pattern.pipe
 import akka.remote.testconductor.RoleName
-import akka.remote.testkit.{ MultiNodeConfig, MultiNodeSpec }
+import akka.remote.testkit.{MultiNodeConfig, MultiNodeSpec}
 import akka.testkit.ImplicitSender
 import com.lightbend.lagom.scaladsl.persistence._
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.{Config, ConfigFactory}
 import play.api.Environment
 
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 abstract class AbstractClusteredPersistentEntityConfig extends MultiNodeConfig {
-
   val node1 = role("node1")
   val node2 = role("node2")
   val node3 = role("node3")
@@ -28,8 +27,11 @@ abstract class AbstractClusteredPersistentEntityConfig extends MultiNodeConfig {
   val databasePort = System.getProperty("database.port").toInt
   val environment = Environment.simple()
 
-  commonConfig(additionalCommonConfig(databasePort).withFallback(ConfigFactory.parseString(
-    """
+  commonConfig(
+    additionalCommonConfig(databasePort).withFallback(
+      ConfigFactory
+        .parseString(
+          """
       akka.loglevel = INFO
       lagom.persistence.run-entities-on-role = "backend"
       lagom.persistence.read-side.run-on-role = "read-side"
@@ -59,7 +61,10 @@ abstract class AbstractClusteredPersistentEntityConfig extends MultiNodeConfig {
       # no jvm exit on tests
       lagom.cluster.exit-jvm-when-system-terminated = off
     """
-  ).withFallback(ConfigFactory.parseResources("play/reference-overrides.conf"))))
+        )
+        .withFallback(ConfigFactory.parseResources("play/reference-overrides.conf"))
+    )
+  )
 
   def additionalCommonConfig(databasePort: Int): Config
 
@@ -74,7 +79,6 @@ abstract class AbstractClusteredPersistentEntityConfig extends MultiNodeConfig {
   nodeConfig(node3) {
     ConfigFactory.parseString("""akka.cluster.roles = ["read-side"]""")
   }
-
 }
 
 object AbstractClusteredPersistentEntitySpec {
@@ -83,7 +87,7 @@ object AbstractClusteredPersistentEntitySpec {
     val s = Thread.currentThread.getStackTrace map (_.getClassName) drop 1 dropWhile (_ matches ".*MultiNodeSpec.?$")
     val reduced = s.lastIndexWhere(_ == clazz.getName) match {
       case -1 => s
-      case z  => s drop (z + 1)
+      case z => s drop (z + 1)
     }
     reduced.head.replaceFirst(""".*\.""", "").replaceAll("[^a-zA-Z_0-9]", "_")
   }
@@ -95,13 +99,12 @@ object AbstractClusteredPersistentEntitySpec {
     )
     ActorSystem(getCallerName(classOf[MultiNodeSpec]), setup)
   }
-
 }
 
 abstract class AbstractClusteredPersistentEntitySpec(config: AbstractClusteredPersistentEntityConfig)
-  extends MultiNodeSpec(config, AbstractClusteredPersistentEntitySpec.createActorSystem(TestEntitySerializerRegistry))
-  with STMultiNodeSpec with ImplicitSender {
-
+    extends MultiNodeSpec(config, AbstractClusteredPersistentEntitySpec.createActorSystem(TestEntitySerializerRegistry))
+    with STMultiNodeSpec
+    with ImplicitSender {
   import config._
   // implicit EC needed for pipeTo
   import system.dispatcher
@@ -145,7 +148,7 @@ abstract class AbstractClusteredPersistentEntitySpec(config: AbstractClusteredPe
    * uses overridden {{getAppendCount}} to assert a given entity {{id}} emitted the {{expected}} number of events. The
    * implementation uses polling from only node1 so nodes 2 and 3 will skip this code.
    */
-  def expectAppendCount(id: String, expected: Long) = {
+  def expectAppendCount(id: String, expected: Long) =
     runOn(node1) {
       within(20.seconds) {
         awaitAssert {
@@ -154,10 +157,8 @@ abstract class AbstractClusteredPersistentEntitySpec(config: AbstractClusteredPe
         }
       }
     }
-  }
 
   "A PersistentEntity in a Cluster" must {
-
     "send commands to target entity" in within(75.seconds) {
       // this barrier at the beginning of the test will be run on all nodes and should be at the
       // beginning of the test to ensure it's run.
@@ -197,7 +198,6 @@ abstract class AbstractClusteredPersistentEntitySpec(config: AbstractClusteredPe
       // NOTE: in nodes node2 and node3 {{expectAppendCount}} is a noop
       expectAppendCount("1", 3)
       expectAppendCount("2", 6)
-
     }
 
     "run entities on specific node roles" in {
@@ -209,13 +209,12 @@ abstract class AbstractClusteredPersistentEntitySpec(config: AbstractClusteredPe
       // i.e. no entities on node3
 
       val entities = for (n <- 10 to 29) yield registry.refFor[TestEntity](n.toString)
-      val addresses = entities.map {
-        ent =>
-          val r = ent.ask(TestEntity.GetAddress)
-          val h: Future[String] = r.map(_.hostPort) // compile check that the reply type is inferred correctly
-          h.onComplete(println) // Avoid compiler warning
-          r.pipeTo(testActor)
-          expectMsgType[Address]
+      val addresses = entities.map { ent =>
+        val r = ent.ask(TestEntity.GetAddress)
+        val h: Future[String] = r.map(_.hostPort) // compile check that the reply type is inferred correctly
+        h.onComplete(println) // Avoid compiler warning
+        r.pipeTo(testActor)
+        expectMsgType[Address]
       }.toSet
 
       addresses should not contain (node(node3).address)
